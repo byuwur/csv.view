@@ -304,7 +304,8 @@
 
   // --- PARSING ---
   const csvOptions = (options) => {
-    const result = { delimiter: ",", headers: true, skipEmptyLines: true, pageSize: 50, search: false, columnFilters: false, copyCells: false, ...options };
+    const { headers = true, skipEmptyLines = true } = options ?? {};
+    const result = { delimiter: ",", pageSize: 50, ...options, headers, skipEmptyLines };
     if (typeof result.delimiter !== "string" || result.delimiter.length !== 1 || /["\r\n\uFEFF]/.test(result.delimiter)) throw new TypeError("delimiter must be one character other than a quote or line break.");
     result.pageSize = positive(result.pageSize, 50, 1000);
     return result;
@@ -423,6 +424,17 @@
     if (!(element instanceof HTMLElement)) throw new TypeError("byCSVviewer: element must be an HTMLElement.");
     // Validate appearance before disposing the current instance, so invalid options leave it usable.
     applyAppearance(element, options);
+    const {
+      animations = true,
+      appearAnimation = false,
+      displayContainer = true,
+      controlsCompact = true,
+      credits = true,
+      themeToggle = true,
+      fontSizeControls = true,
+      copyButton: showCopyButton = true,
+      toolbar: showToolbar = true
+    } = options;
     const painted = element.classList.contains("byVIEWready");
     instances.get(element)?.destroy();
     const state = { active: true };
@@ -441,8 +453,8 @@
     instances.set(element, state);
     element.replaceChildren();
     element.classList.add("byCSVdocument");
-    element.classList.toggle("byVIEWmotion", options.animations !== false);
-    const appear = options.animations !== false && options.appearAnimation === true;
+    element.classList.toggle("byVIEWmotion", animations);
+    const appear = animations && appearAnimation;
     element.classList.toggle("byVIEWappear", appear);
     if (painted && !appear) element.classList.add("byVIEWready");
     else {
@@ -454,8 +466,8 @@
         });
       });
     }
-    element.classList.toggle("byVIEWplain", options.displayContainer === false);
-    element.classList.toggle("byVIEWcompact", options.controlsCompact !== false);
+    element.classList.toggle("byVIEWplain", !displayContainer);
+    element.classList.toggle("byVIEWcompact", controlsCompact);
     element.classList.toggle("byVIEWbottom", options.controlsPosition === "bottom");
     const content = node("div", "byVIEWcontent");
     const toolbar = node("div", "byVIEWtoolbar");
@@ -472,15 +484,15 @@
       if (info.childNodes.length) info.append(` · v${byCSVviewer.VERSION} · `);
       info.appendChild(link);
     }
-    if (options.credits !== false) toolbar.appendChild(info);
+    if (credits) toolbar.appendChild(info);
     const controls = node("div", "byVIEWcontrols");
     controls.setAttribute("role", "group");
     controls.setAttribute("aria-label", "Viewer controls");
-    if (options.themeToggle !== false) appendThemeToggle(element, controls, "csv");
-    if (options.fontSizeControls !== false) appendFontSizeControls(element, controls);
-    if (options.copyButton !== false) appendCopyButton(controls, getText, "Copy source");
+    if (themeToggle) appendThemeToggle(element, controls, "csv");
+    if (fontSizeControls) appendFontSizeControls(element, controls);
+    if (showCopyButton) appendCopyButton(controls, getText, "Copy source");
     if (controls.childNodes.length) toolbar.appendChild(controls);
-    if (options.toolbar === false || !toolbar.childNodes.length) {
+    if (!showToolbar || !toolbar.childNodes.length) {
       element.classList.remove("byVIEWbottom");
       element.appendChild(content);
     } else element.append(...(options.controlsPosition === "bottom" ? [content, toolbar] : [toolbar, content]));
@@ -499,6 +511,7 @@
   // Render CSV/TSV text or scalar records. ready resolves false on a displayed data error or cancellation.
   function byCSVviewer(element, input, options = {}) {
     options = csvOptions(options);
+    const { search: showSearch = false, columnsButton = false, pagination = true, sorting = true, columnFilters = false, copyCells = false, statusBar = true } = options;
     if (input === undefined) input = element?.textContent ?? "";
     let data = { columns: [], rows: [] };
     const serialize = () => {
@@ -529,7 +542,7 @@
         search.type = "search";
         search.placeholder = "Search all columns";
         search.setAttribute("aria-label", "Search all columns");
-        if (options.search !== false) actions.appendChild(search);
+        if (showSearch) actions.appendChild(search);
         const chooser = node("details", "byCSVcolumns");
         chooser.appendChild(node("summary", "", "Columns"));
         const visible = data.columns.map((name, index) => !Array.isArray(options.visibleColumns) || options.visibleColumns.includes(index) || options.visibleColumns.includes(name));
@@ -546,7 +559,7 @@
           label.append(checkbox, ` ${name || `Column ${index + 1}`}`);
           chooser.appendChild(label);
         });
-        if (options.columnsButton === true) actions.appendChild(chooser);
+        if (columnsButton) actions.appendChild(chooser);
         const scroll = node("div", "byCSVscroll");
         scroll.tabIndex = 0;
         scroll.setAttribute("role", "region");
@@ -575,7 +588,7 @@
         // Replace the visible page; retaining the header preserves native column-filter focus while typing.
         const renderPage = (rebuildHeader = true) => {
           if (!state.active) return;
-          const count = options.pagination === false ? 1 : Math.max(1, Math.ceil(indices.length / options.pageSize));
+          const count = !pagination ? 1 : Math.max(1, Math.ceil(indices.length / options.pageSize));
           // Capture the sorting control before rebuilding the header so keyboard focus survives the update.
           const focusedColumn = table.contains(document.activeElement) ? (document.activeElement.dataset.column ?? null) : null;
           page = Math.max(0, Math.min(page, count - 1));
@@ -587,8 +600,8 @@
             if (!visible[index]) return;
             const th = node("th");
             th.scope = "col";
-            if (options.sorting !== false) th.setAttribute("aria-sort", sortColumn === index ? (direction === 1 ? "ascending" : "descending") : "none");
-            if (options.sorting !== false)
+            if (sorting) th.setAttribute("aria-sort", sortColumn === index ? (direction === 1 ? "ascending" : "descending") : "none");
+            if (sorting)
               button(th, name || `Column ${index + 1}`, `Sort by ${name || `column ${index + 1}`}`, () => {
                 if (sortColumn !== index) {
                   sortColumn = index;
@@ -603,7 +616,7 @@
               }).dataset.column = String(index);
             else th.textContent = name || `Column ${index + 1}`;
             header.appendChild(th);
-            if (options.columnFilters !== false) {
+            if (columnFilters) {
               const cell = node("th");
               const filter = node("input");
               filter.type = "search";
@@ -618,14 +631,14 @@
               filterRow.appendChild(cell);
             }
           });
-          if (options.columnFilters !== false) head.appendChild(filterRow);
+          if (columnFilters) head.appendChild(filterRow);
           const body = node("tbody");
-          for (const index of options.pagination === false ? indices : indices.slice(page * options.pageSize, (page + 1) * options.pageSize)) {
+          for (const index of !pagination ? indices : indices.slice(page * options.pageSize, (page + 1) * options.pageSize)) {
             const row = node("tr");
             data.rows[index].forEach((value, column) => {
               if (!visible[column]) return;
               const cell = node("td");
-              if (options.copyCells !== false) copyCell(cell, () => cellText(value), `Copy ${data.columns[column]} value`, cellText(value));
+              if (copyCells) copyCell(cell, () => cellText(value), `Copy ${data.columns[column]} value`, cellText(value));
               else cell.textContent = cellText(value);
               row.appendChild(cell);
             });
@@ -634,8 +647,8 @@
           if (!rebuildHeader && table.tHead) table.tBodies[0].replaceWith(body);
           else table.replaceChildren(head, body);
           if (focusedColumn !== null && rebuildHeader) table.querySelector(`button[data-column="${focusedColumn}"]`)?.focus({ preventScroll: true });
-          pager.hidden = options.pagination === false || count <= 1;
-          status.hidden = options.statusBar === false && indices.length > 0 && visible.some(Boolean);
+          pager.hidden = !pagination || count <= 1;
+          status.hidden = !statusBar && indices.length > 0 && visible.some(Boolean);
           status.textContent = !visible.some(Boolean) ? "All columns are hidden." : indices.length ? `${indices.length.toLocaleString()} of ${data.rows.length.toLocaleString()} rows` : "No matching rows.";
           pageLabel.textContent = `Page ${page + 1} of ${count}`;
           previous.disabled = page === 0;
