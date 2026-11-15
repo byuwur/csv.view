@@ -57,7 +57,7 @@ For CSP, allow library origins in `script-src` and `style-src`. Move example inl
 | `delimiter`        | `","`       | One character, excluding quote, BOM, CR, and LF. No autodetection.                                                                                         |
 | `headers`          | `true`      | First text/array row supplies names. False generates `Column 1`, etc. Record input always uses its union of own keys.                                      |
 | `skipEmptyLines`   | `true`      | Skip physically empty lines. Quoted empty cells and delimiter-only rows remain.                                                                            |
-| `pageSize`         | `50`        | Rows per page, integer 1–1000; invalid values use 50.                                                                                                      |
+| `pageSize`         | `50`        | Rows per page, integer 1-1000; invalid values use 50.                                                                                                      |
 | `search`           | `false`     | Global case-insensitive substring search, including hidden columns.                                                                                        |
 | `columnFilters`    | `false`     | Per-column substring filters; combined with search using AND. Hidden filters remain active.                                                                |
 | `visibleColumns`   | all         | Array of zero-based indices or column names. Duplicate names match every column with that name; an empty array hides all columns.                          |
@@ -73,7 +73,7 @@ For CSP, allow library origins in `script-src` and `style-src`. Move example inl
 | `pagination`       | `true`      | Paginate large tables. The pager appears only with multiple pages; false shows every row.                                                                  |
 | `theme`            | Container   | Initial `"light"` or `"dark"` mode class.                                                                                                                  |
 | `palette`          | Container   | Initial `data-theme` palette, including custom CSS names.                                                                                                  |
-| `fontSize`         | Container   | Number in rem or a CSS size such as `"1.25em"` or `"20px"`; bounded to `0.5rem`–`3rem`.                                                                    |
+| `fontSize`         | Container   | Number in rem or a CSS size such as `"1.25em"` or `"20px"`; bounded to `0.5rem`-`3rem`.                                                                    |
 | `themeToggle`      | `true`      | Show the theme toggle.                                                                                                                                     |
 | `fontSizeControls` | `true`      | Show text-size controls.                                                                                                                                   |
 | `copyButton`       | `true`      | Copy original text, or CSV serialized from record/row input, including hidden/filtered rows.                                                               |

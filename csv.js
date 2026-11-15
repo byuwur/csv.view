@@ -523,7 +523,7 @@
     };
     const state = mount(element, options, () => (typeof input === "string" ? input : serialize()));
     element.setAttribute("aria-busy", "true");
-    const status = node("p", "byVIEWstatus", "Loading…");
+    const status = node("p", "byVIEWstatus", "Loading...");
     status.setAttribute("role", "status");
     state.content.appendChild(status);
     state.ready = (async () => {
