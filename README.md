@@ -2,6 +2,8 @@
 
 ![CSV.view preview](prev.jpg)
 
+Development version: **v2** (unreleased). The [latest release](https://github.com/byuwur/csv.view/releases/latest) supplies the published files.
+
 **CSV, every cell in sight.**
 
 Turn CSV, TSV, or arrays of records into a table with search, sorting, filters, and pagination.
