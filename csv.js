@@ -1,9 +1,9 @@
 "use strict";
 /*
  * File: csv.js
- * Desc: Standalone CSV viewer. No runtime dependencies.
+ * Desc: Standalone CSV.view. No runtime dependencies.
  * Copyright (c) 2026 Andres Trujillo [Mateus] byUwUr
- * https://github.com/byuwur/easy-csv-viewer
+ * https://github.com/byuwur/csv.view
  * MIT License (see LICENSE).
  */
 (function (global) {
@@ -115,8 +115,8 @@
     const document = element.ownerDocument;
     if (document.defaultView.getComputedStyle(document.documentElement).getPropertyValue("--by-csv-themes-loaded").trim() === "1") return;
     warnedPalettes.add(palette);
-    // console.warn(`easy-csv-viewer: Palette "${palette}" requires csv.themes.css. Import it after csv.css. https://byuwur.github.io/easy-csv-viewer/`);
-    console.warn(`easy-csv-viewer: Palette "${palette}" requires csv.themes.css. Import it after csv.css. https://csv.byuwur.co/`);
+    // console.warn(`CSV.view: Palette "${palette}" requires csv.themes.css. Import it after csv.css. https://byuwur.github.io/csv.view/`);
+    console.warn(`CSV.view: Palette "${palette}" requires csv.themes.css. Import it after csv.css. https://csv.byuwur.co/`);
   };
 
   // Explicit appearance options override markup; omitted values preserve the container's state.
@@ -474,7 +474,7 @@
     toolbar.dataset.size = ["xs", "small", "regular", "large", "xl"].includes(options.controlsSize) ? options.controlsSize : "regular";
     const info = node("small", "byVIEWinfo");
     for (const [text, href] of [
-      ["easy-csv-viewer", "https://github.com/byuwur/easy-csv-viewer"],
+      ["CSV.view", "https://github.com/byuwur/csv.view"],
       ["@byUwUr", "https://byuwur.co"]
     ]) {
       const link = node("a", "", text);

@@ -1,5 +1,5 @@
 {
-  "repository": "byuwur/easy-csv-viewer",
+  "repository": "byuwur/csv.view",
   "branch": "main",
   "kind": "easy",
   "runtime": ["csv.js", "csv.css", "csv.themes.css"],
