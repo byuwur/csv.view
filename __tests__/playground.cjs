@@ -57,8 +57,8 @@ test("CSV playground loads, updates, and copies a starter", { timeout: 30000 }, 
   await page.goto("https://playground.test/index.html");
   assert.equal(await page.locator("#latest-release").textContent(), "Latest Release");
   assert.equal(await page.locator("#latest-release").getAttribute("href"), "https://github.com/byuwur/csv.view/releases/latest");
-  assert.equal(await page.locator("#download-release").getAttribute("href"), "https://github.com/byuwur/csv.view/releases/download/v2/csv.view.v2.zip");
-  assert.equal(await page.locator("#download-minified").getAttribute("href"), "https://github.com/byuwur/csv.view/releases/download/v2/csv.view.v2.minified.zip");
+  assert.equal(await page.locator("#download-release").getAttribute("href"), "https://github.com/byuwur/csv.view/releases/latest/download/csv.view.zip");
+  assert.equal(await page.locator("#download-minified").getAttribute("href"), "https://github.com/byuwur/csv.view/releases/latest/download/csv.view.minified.zip");
   const preview = page.frameLocator("#preview-frame").locator(".byCSVdocument");
   await preview.waitFor();
   await page.locator("#source").fill("name,value\nPLAYGROUND_CORE,1");
