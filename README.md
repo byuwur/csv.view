@@ -48,9 +48,31 @@ Open [index.html](index.html) locally. Its host assets use the network. Exported
 
 ## API and options
 
-1. [Options](#options)
-2. [API and data contract](#api-and-data-contract)
+1. [API and data contract](#api-and-data-contract)
+2. [Options](#options)
 3. [Appearance and limits](#appearance-and-limits)
+
+### API and data contract
+
+`byCSVviewer(element, input?, options?)` returns `{ ready, destroy }`. `ready` resolves `true` after initial rendering, or `false` on a displayed data error, cancellation, or disposal. Invalid targets or delimiters throw `TypeError`. Re-rendering disposes the previous instance; `destroy()` cancels pending work and clears the target only if the instance still owns it.
+
+`byCSVviewer.parse(input, options?)` uses the same parser and synchronously returns `{ columns: string[], rows: unknown[][] }`. Invalid input throws `TypeError`, `SyntaxError`, or `RangeError`. Read the release version with `byCSVviewer.VERSION`. Duplicate script loads preserve the API.
+
+CSV strings remain strings, including leading zeros and whitespace. Quoted delimiters, doubled quotes, CR/LF/CRLF, BOM, and embedded line breaks are supported. A quote must start a field; after its closing quote only a delimiter or line ending is accepted. Unequal field counts are errors.
+
+Array/record values retain scalar types; null/missing values display as empty. Nested objects are rejected. Caller arrays are unchanged. Only own keys are used, including `__proto__`.
+
+Column headers cycle through ascending, descending, and reset to input order. Sorting is natural and case-insensitive; ties keep input order. Reset retains active filters. Filtering leaves source data unchanged.
+
+Cell copy preserves the exact value, including empty strings. Copy requires clipboard permission in a secure context.
+
+`ready` describes the initial render only; it does not track later filtering, sorting, or page changes.
+
+```javascript
+const viewer = byCSVviewer(target, csv, { search: true });
+const rendered = await viewer.ready; // false on data errors or cancellation.
+viewer.destroy(); // Call when the host panel is removed.
+```
 
 ### Options
 
@@ -82,28 +104,6 @@ Open [index.html](index.html) locally. Its host assets use the network. Exported
 | `controlsSize`     | `"regular"` | `"xs"` (0.5rem), `"small"` (0.7rem), `"regular"` (0.875rem), `"large"` (1rem), or `"xl"` (1.25rem); invalid values use `"regular"`.                        |
 | `controlsCompact`  | `true`      | Keep credits beside controls; `false` stacks them. Wraps as needed.                                                                                        |
 | `controlsPosition` | `"top"`     | Sticky `"top"` or `"bottom"` toolbar; invalid values use `"top"`.                                                                                          |
-
-### API and data contract
-
-`byCSVviewer(element, input?, options?)` returns `{ ready, destroy }`. `ready` resolves `true` after initial rendering, or `false` on a displayed data error, cancellation, or disposal. Invalid targets or delimiters throw `TypeError`. Re-rendering disposes the previous instance; `destroy()` cancels pending work and clears the target only if the instance still owns it.
-
-`byCSVviewer.parse(input, options?)` uses the same parser and synchronously returns `{ columns: string[], rows: unknown[][] }`. Invalid input throws `TypeError`, `SyntaxError`, or `RangeError`. Read the release version with `byCSVviewer.VERSION`. Duplicate script loads preserve the API.
-
-CSV strings remain strings, including leading zeros and whitespace. Quoted delimiters, doubled quotes, CR/LF/CRLF, BOM, and embedded line breaks are supported. A quote must start a field; after its closing quote only a delimiter or line ending is accepted. Unequal field counts are errors.
-
-Array/record values retain scalar types; null/missing values display as empty. Nested objects are rejected. Caller arrays are unchanged. Only own keys are used, including `__proto__`.
-
-Column headers cycle through ascending, descending, and reset to input order. Sorting is natural and case-insensitive; ties keep input order. Reset retains active filters. Filtering leaves source data unchanged.
-
-Cell copy preserves the exact value, including empty strings. Copy requires clipboard permission in a secure context.
-
-`ready` describes the initial render only; it does not track later filtering, sorting, or page changes.
-
-```javascript
-const viewer = byCSVviewer(target, csv, { search: true });
-const rendered = await viewer.ready; // false on data errors or cancellation.
-viewer.destroy(); // Call when the host panel is removed.
-```
 
 ### Appearance and limits
 

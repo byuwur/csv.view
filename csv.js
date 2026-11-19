@@ -7,15 +7,23 @@
  * MIT License (see LICENSE).
  */
 (function (global) {
-  // --- INITIALIZATION ---
+  // ==============
+  // INITIALIZATION
+  // ==============
   if (global.byCSVviewer?.initialized) return;
 
-  // --- METADATA ---
+  // ==========
+  // METADATA
+  // ==========
   byCSVviewer.VERSION = "2.1"; // 2026-11-18
 
-  // --- STATE ---
+  // ==========
+  // STATE
+  // ==========
   const instances = new WeakMap();
-  // --- HELPERS ---
+  // ==========
+  // HELPERS
+  // ==========
   const node = (tag, className = "", text) => {
     const element = document.createElement(tag);
     element.className = className;
@@ -62,7 +70,9 @@
   // Yield at a chunk boundary so input events and replacement renders can run.
   const pause = () => new Promise((resolve) => setTimeout(resolve, 0));
   const positive = (value, fallback, maximum) => (Number.isInteger(value) && value > 0 ? Math.min(value, maximum) : fallback);
-  // --- APPEARANCE ---
+  // ==========
+  // APPEARANCE
+  // ==========
   const extraPalettes = new Set([
     "dracula",
     "darcula",
@@ -141,7 +151,9 @@
     }
   };
 
-  // --- CONTROLS ---
+  // ==========
+  // CONTROLS
+  // ==========
   // Mirrored across the family so each viewer can run without a shared runtime.
   /**
    * Adds container light/dark controls, retaining legacy stylesheet links as a fallback.
@@ -302,7 +314,9 @@
     });
   };
 
-  // --- PARSING ---
+  // ==========
+  // PARSING
+  // ==========
   const csvOptions = (options) => {
     const { headers = true, skipEmptyLines = true } = options ?? {};
     const result = { delimiter: ",", pageSize: 50, ...options, headers, skipEmptyLines };
@@ -417,7 +431,9 @@
     return { columns, rows };
   }
 
-  // --- LIFECYCLE ---
+  // ==========
+  // LIFECYCLE
+  // ==========
   // One instance owns the container; replacement disposes its pending work first.
   // Replace the previous owner and return its cancellable state. Only the current owner may clear the host.
   const mount = (element, options, getText) => {
@@ -507,7 +523,9 @@
     return state;
   };
 
-  // --- PUBLIC API ---
+  // ==========
+  // PUBLIC API
+  // ==========
   // Render CSV/TSV text or scalar records. ready resolves false on a displayed data error or cancellation.
   function byCSVviewer(element, input, options = {}) {
     options = csvOptions(options);
@@ -584,7 +602,9 @@
           renderPage();
         });
         const collator = new Intl.Collator(undefined, { numeric: true, sensitivity: "base" });
-        // --- RENDERING ---
+        // ==========
+        // RENDERING
+        // ==========
         // Replace the visible page; retaining the header preserves native column-filter focus while typing.
         const renderPage = (rebuildHeader = true) => {
           if (!state.active) return;
@@ -700,7 +720,9 @@
     } while (!step.done);
     return step.value;
   };
-  // --- EXPORT ---
+  // ==========
+  // EXPORT
+  // ==========
   global.byCSVviewer = byCSVviewer;
   byCSVviewer.initialized = true;
 })(typeof window !== "undefined" ? window : this);
