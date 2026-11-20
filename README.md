@@ -56,7 +56,7 @@ Open [index.html](index.html) locally. Its host assets use the network. Exported
 
 ### API and data contract
 
-`byCSVviewer(element, input?, options?)` returns `{ ready, destroy }`. `ready` resolves `true` after initial rendering, or `false` on a displayed data error, cancellation, or disposal. Invalid targets or delimiters throw `TypeError`. Re-rendering disposes the previous instance; `destroy()` cancels pending work and clears the target only if the instance still owns it.
+`byCSVviewer(element, input?, options?)` returns `{ ready, setOptions, destroy }`. `ready` resolves `true` after initial rendering, or `false` on a displayed data error, cancellation, or disposal. Invalid targets or delimiters throw `TypeError`. Re-rendering disposes the previous instance; `destroy()` cancels pending work and clears the target only if the instance still owns it.
 
 `byCSVviewer.parse(input, options?)` uses the same parser and synchronously returns `{ columns: string[], rows: unknown[][] }`. Invalid input throws `TypeError`, `SyntaxError`, or `RangeError`. Read the release version with `byCSVviewer.VERSION`. Duplicate script loads preserve the API.
 
@@ -88,7 +88,7 @@ viewer.destroy(); // Call when the host panel is removed.
 | `columnFilters`    | `false`     | Per-column substring filters; combined with search using AND. Hidden filters remain active.                                                                |
 | `visibleColumns`   | all         | Array of zero-based indices or column names. Duplicate names match every column with that name; an empty array hides all columns.                          |
 | `copyCells`        | `false`     | Cells become keyboard-accessible copy buttons, keeping the same text and spacing.                                                                          |
-| `animations`       | `true`      | Brief control/disclosure motion and background fades; overrides the system motion preference.                                                              |
+| `animations`       | `true`      | Animate controls, disclosures and theme backgrounds. Overrides the system motion preference.                                                               |
 | `appearAnimation`  | `false`     | Fade the viewer in on each render when `animations` is enabled. Initial rendering remains immediate by default.                                            |
 | `toolbar`          | `true`      | Show the viewer header; secondary tools are configured separately.                                                                                         |
 | `credits`          | `true`      | Show attribution in the header.                                                                                                                            |
@@ -131,7 +131,7 @@ Controls use monospace by default; override `--by-view-controls-font` to change 
 
 Use `theme` for light or dark mode and `palette` for the color scheme. Monokai, GitHub, Solarized and High Contrast are built in. Load [csv.themes.css](csv.themes.css) after the base stylesheet for the other palettes.
 
-Options override container settings. Omit an option or pass `null` to keep its current value. Numeric `fontSize` uses rem. CSS sizes such as `20px` also work within the `0.5rem` to `3rem` range. Invalid appearance values throw `RangeError` before replacing the document.
+Options override container settings. Omit an option or pass `null` to keep its current value. Call `setOptions(changes)` on the returned viewer to apply settings immediately. Presentation changes preserve the displayed document. The text controls resize content in `0.125rem` steps. Content padding stays fixed. The document frame, toolbar, and status line keep their size. Reset restores the configured or inherited size. Numeric `fontSize` uses rem. CSS sizes such as `20px` also work within the `0.5rem` to `3rem` range. Invalid appearance values throw `RangeError` before replacing the document.
 
 ```html
 <div id="viewer" class="dark" data-theme="github"></div>
