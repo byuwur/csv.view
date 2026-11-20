@@ -3,9 +3,7 @@
 /* Monokai is the default. Classes select mode; named data-theme values select a palette.
    data-theme="light" / "dark" remain mode aliases and override mode classes. */
 
-/* ==========
- * VIEWER
- * ========== */
+/* ===== VIEWER ===== */
 /* Keep host layout transitions out; component rules below opt in to motion. */
 .byCSVdocument,
 .byCSVdocument *,
@@ -33,9 +31,7 @@
   box-sizing: border-box;
 }
 
-/* ==========
- * CONTENT
- * ========== */
+/* ===== CONTENT ===== */
 .byCSVdocument *,
 .byCSVdocument *::before,
 .byCSVdocument *::after {
@@ -200,9 +196,7 @@
   outline-offset: -0.125rem;
 }
 
-/* ==========
- * CONTROLS
- * ========== */
+/* ===== CONTROLS ===== */
 .byCSVdocument > .byVIEWtoolbar {
   position: sticky;
   flex-shrink: 0;
@@ -381,9 +375,7 @@
   font-family: inherit;
 }
 
-/* ===========
- * INTERACTION
- * =========== */
+/* ===== INTERACTION ===== */
 .byCSVdocument button {
   -webkit-tap-highlight-color: #0000;
   touch-action: manipulation;
@@ -454,9 +446,7 @@
   background: color-mix(in srgb, var(--by-view-accent) 8%, var(--by-view-container-bg, var(--by-view-bg)));
 }
 
-/* ==========
- * MOTION
- * ========== */
+/* ===== MOTION ===== */
 /* Initial content is immediate unless the entrance animation is explicitly enabled. */
 .byCSVdocument {
   --by-view-motion-duration: 0s;
@@ -550,12 +540,8 @@
   transition: opacity var(--by-view-motion-duration) ease-out !important;
 }
 
-/* ==========
- * THEMES
- * ========== */
-/* ==========
- * LIGHT
- * ========== */
+/* ===== THEMES ===== */
+/* ===== LIGHT ===== */
 .byCSVdocument,
 .byCSVdocument.light:not([data-theme="dark"]),
 .byCSVdocument[data-theme="light"] {
@@ -573,9 +559,7 @@
   --by-view-error: #c7255e;
 }
 
-/* ==========
- * DARK
- * ========== */
+/* ===== DARK ===== */
 .byCSVdocument.dark:not([data-theme="light"]),
 .byCSVdocument[data-theme="dark"] {
   color-scheme: dark;
@@ -592,9 +576,7 @@
   --by-view-error: #f92672;
 }
 
-/* ==========
- * GITHUB
- * ========== */
+/* ===== GITHUB ===== */
 /* Light */
 .byCSVdocument[data-theme="github"]:not(.dark) {
   --by-view-muted: #59636e;
@@ -622,9 +604,7 @@
   --by-view-error: #ff7b72;
 }
 
-/* ==========
- * SOLARIZED
- * ========== */
+/* ===== SOLARIZED ===== */
 /* Light */
 .byCSVdocument[data-theme="solarized"]:not(.dark) {
   --by-view-muted: #657b83;
@@ -652,9 +632,7 @@
   --by-view-error: #dc322f;
 }
 
-/* =============
- * HIGH CONTRAST
- * ============= */
+/* ===== HIGH CONTRAST ===== */
 /* Light */
 .byCSVdocument[data-theme="high-contrast"]:not(.dark) {
   --by-view-muted: #333333;

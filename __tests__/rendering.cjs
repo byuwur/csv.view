@@ -21,9 +21,7 @@ test("CSV library", { timeout: 30000 }, async (t) => {
   page.on("pageerror", (error) => errors.push(error.message));
   // Load authored files directly; CDN availability is not part of this contract.
   await page.route("**/*", (route) => route.abort());
-  // ===============
-  // BROWSER FIXTURE
-  // ===============
+  // ===== BROWSER FIXTURE =====
   await page.setContent('<!doctype html><meta charset="UTF-8"><div id="viewer"></div>');
   await page.addStyleTag({ path: path.join(__dirname, "../csv.css") });
   await page.addScriptTag({ path: path.join(__dirname, "../csv.js") });
@@ -31,9 +29,7 @@ test("CSV library", { timeout: 30000 }, async (t) => {
     window.root = document.getElementById("viewer");
   });
 
-  // ==================
-  // RENDERING BEHAVIOR
-  // ==================
+  // ===== RENDERING BEHAVIOR =====
   await t.test("parses quoted fields and renders searchable rows", async () => {
     const parsed = await page.evaluate(() => byCSVviewer.parse('name,note\r\n"A,B","a""b\r\nc"\r\nSam,ready'));
     assert.deepEqual(parsed, {
