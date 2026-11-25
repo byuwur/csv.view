@@ -22,7 +22,10 @@ test("CSV library", { timeout: 30000 }, async (t) => {
   // Load authored files directly; CDN availability is not part of this contract.
   await page.route("**/*", (route) => route.abort());
   // ===== BROWSER FIXTURE =====
-  await page.setContent('<!doctype html><meta charset="UTF-8"><div id="viewer"></div>');
+  await page.setContent(
+    /* HTML */ `<!doctype html><meta charset="UTF-8" />
+      <div id="viewer"></div>`
+  );
   await page.addStyleTag({ path: path.join(__dirname, "../csv.css") });
   await page.addScriptTag({ path: path.join(__dirname, "../csv.js") });
   await page.evaluate(() => {
@@ -48,7 +51,7 @@ test("CSV library", { timeout: 30000 }, async (t) => {
 
   await t.test("rejects malformed CSV and renders cell markup as text", async () => {
     assert.equal(await page.evaluate(() => byCSVviewer(root, 'name\n"unclosed').ready), false);
-    await page.evaluate(() => byCSVviewer(root, "name\n<img src=x onerror=window.injected=1>").ready);
+    assert.equal(await page.evaluate(() => byCSVviewer(root, 'name\n"<img src=""x"" onerror=""window.injected=1"">"').ready), true);
     assert.equal(await page.locator("#viewer img").count(), 0);
     assert.match(await page.locator("tbody").textContent(), /<img/);
     assert.equal(await page.evaluate(() => window.injected), undefined);
