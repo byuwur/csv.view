@@ -623,24 +623,18 @@
           generation = 0;
         const previous = button(pager, "Previous", "Previous page", () => {
           page--;
-          renderPage();
+          renderPage(false);
         });
         const pageLabel = node("span", "byVIEWstatus");
         pageLabel.setAttribute("role", "status");
         pager.appendChild(pageLabel);
         const next = button(pager, "Next", "Next page", () => {
           page++;
-          renderPage();
+          renderPage(false);
         });
         const collator = new Intl.Collator(undefined, { numeric: true, sensitivity: "base" });
         // ===== RENDERING =====
-        // Replace the visible page; retaining the header preserves native column-filter focus while typing.
-        const renderPage = (rebuildHeader = true) => {
-          if (!state.active) return;
-          const count = !pagination ? 1 : Math.max(1, Math.ceil(indices.length / options.pageSize));
-          // Capture the sorting control before rebuilding the header so keyboard focus survives the update.
-          const focusedColumn = table.contains(document.activeElement) ? (document.activeElement.dataset.column ?? null) : null;
-          page = Math.max(0, Math.min(page, count - 1));
+        const createHeader = () => {
           const head = node("thead"),
             header = node("tr");
           head.appendChild(header);
@@ -681,6 +675,12 @@
             }
           });
           if (columnFilters) head.appendChild(filterRow);
+          return head;
+        };
+        const renderPage = (rebuildHeader = true) => {
+          if (!state.active) return;
+          const count = !pagination ? 1 : Math.max(1, Math.ceil(indices.length / options.pageSize));
+          page = Math.max(0, Math.min(page, count - 1));
           const body = node("tbody");
           for (const index of !pagination ? indices : indices.slice(page * options.pageSize, (page + 1) * options.pageSize)) {
             const row = node("tr");
@@ -693,9 +693,11 @@
             });
             body.appendChild(row);
           }
-          if (!rebuildHeader && table.tHead) table.tBodies[0].replaceWith(body);
-          else table.replaceChildren(head, body);
-          if (focusedColumn !== null && rebuildHeader) table.querySelector(`button[data-column="${focusedColumn}"]`)?.focus({ preventScroll: true });
+          if (rebuildHeader) {
+            const focusedColumn = table.contains(document.activeElement) ? document.activeElement.dataset.column : undefined;
+            table.replaceChildren(createHeader(), body);
+            if (focusedColumn !== undefined) table.querySelector(`button[data-column="${focusedColumn}"]`)?.focus({ preventScroll: true });
+          } else table.tBodies[0].replaceWith(body);
           pager.hidden = !pagination || count <= 1;
           state.syncStatus = () => {
             const { statusBar = true } = options;
