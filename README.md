@@ -58,6 +58,15 @@ Open [index.html](index.html) locally. Its host assets use the network. Exported
 
 `byCSVviewer(element, input?, options?)` returns `{ ready, setOptions, destroy }`. `ready` resolves `true` after initial rendering, or `false` on a displayed data error, cancellation, or disposal. Invalid targets or delimiters throw `TypeError`. Re-rendering disposes the previous instance; `destroy()` cancels pending work and clears the target only if the instance still owns it.
 
+A source string beginning with `https://`, `http://`, `/`, `./`, or `../` and containing no whitespace loads a file. Use `{ url: "example.csv" }` for a bare filename. To display a URL string literally, pass `{ sourceType: "text" }` in the options.
+
+```javascript
+const viewer = byCSVviewer(target, "./example.csv");
+await viewer.ready;
+```
+
+Relative URLs resolve against the page. Cross-origin files require CORS. A failed or superseded load resolves `ready` to `false`.
+
 `byCSVviewer.parse(input, options?)` uses the same parser and synchronously returns `{ columns: string[], rows: unknown[][] }`. Invalid input throws `TypeError`, `SyntaxError`, or `RangeError`. Read the release version with `byCSVviewer.VERSION`. Duplicate script loads preserve the API.
 
 CSV strings remain strings, including leading zeros and whitespace. Quoted delimiters, doubled quotes, CR/LF/CRLF, BOM, and embedded line breaks are supported. A quote must start a field; after its closing quote only a delimiter or line ending is accepted. Unequal field counts are errors.

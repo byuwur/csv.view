@@ -511,6 +511,7 @@
     state.destroy = () => {
       if (!state.active) return;
       state.active = false;
+      state.request?.abort();
       cancelAnimationFrame(state.motionFrame);
       // An old controller must not clear a replacement mounted on the same element.
       if (instances.get(element) === state) {
@@ -552,13 +553,24 @@
     return state;
   };
 
+  const sourceURL = (input, options) => {
+    if (options?.sourceType === "text") return;
+    if (typeof input === "string") return /^(?:https?:\/\/|\.{1,2}\/|\/(?![/*]))[^\s]+$/i.test(input) ? input : undefined;
+    if (input && Object.hasOwn(input, "url") && typeof input.url === "string" && Object.keys(input).length === 1) return input.url.trim() || undefined;
+  };
+  const fetchSource = async (url, signal) => {
+    const response = await fetch(url, { signal });
+    if (!response.ok) throw new Error(`Unable to load source: HTTP ${response.status}.`);
+    return response.text();
+  };
+
   // ===== PUBLIC API =====
   // Render CSV/TSV text or scalar records. ready resolves false on a displayed data error or cancellation.
   function byCSVviewer(element, input, options = {}) {
-    return renderViewer(element, input, options);
+    return renderViewer(element, input, options, undefined, sourceURL(input, options));
   }
 
-  function renderViewer(element, input, options, previous) {
+  function renderViewer(element, input, options, previous, url) {
     options = csvOptions(options);
     const { search: showSearch = false, columnsButton = false, pagination = true, sorting = true, columnFilters = false, copyCells = false } = options;
     if (input === undefined) input = element?.textContent ?? "";
@@ -571,12 +583,18 @@
       return [data.columns, ...data.rows].map((row) => row.map(escape).join(options.delimiter)).join("\r\n");
     };
     const state = mount(element, options, () => (typeof input === "string" ? input : serialize()), previous);
+    if (url) {
+      state.request = previous?.request ?? new AbortController();
+      state.sourceText = previous?.sourceText ?? fetchSource(url, state.request.signal);
+    }
     element.setAttribute("aria-busy", "true");
     const status = node("p", "byVIEWstatus", "Loading...");
     status.setAttribute("role", "status");
     state.content.appendChild(status);
     state.ready = (async () => {
       try {
+        if (state.sourceText) input = await state.sourceText;
+        if (!state.active) return false;
         const parser = readCSV(input, options);
         let step;
         do {
@@ -772,7 +790,7 @@
         }
         if (Object.hasOwn(changes, "statusBar")) state.syncStatus?.();
         if (redraw) {
-          return renderViewer(element, input, options, state).ready;
+          return renderViewer(element, input, options, state, url).ready;
         }
       }
     });
