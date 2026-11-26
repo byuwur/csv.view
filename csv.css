@@ -35,6 +35,9 @@
   flex-direction: column;
   min-width: 0;
   max-width: 100%;
+  min-height: 0;
+  height: 100%;
+  max-height: 100dvh;
   margin: 0;
   padding: 0 1rem 0.75rem;
   border: 0.0625rem solid var(--by-view-border);
@@ -56,8 +59,11 @@
   box-sizing: border-box;
 }
 .byCSVdocument .byVIEWcontent {
+  display: flex;
+  flex-direction: column;
   min-width: 0;
-  flex: 1 0 auto;
+  min-height: 0;
+  flex: 1 1 auto;
 }
 .byCSVdocument > .byVIEWcontent:first-child {
   padding-top: 0.75rem;
@@ -112,6 +118,7 @@
 .byCSVdocument .byCSVscroll {
   max-width: 100%;
   overflow: auto;
+  isolation: isolate;
   margin: 0;
 }
 .byCSVdocument .byCSVtable {
@@ -119,13 +126,17 @@
   border-spacing: 0;
   border: 0;
   border-radius: 0;
-  overflow: hidden;
   width: max-content;
   min-width: 100%;
   text-align: left;
   white-space: pre;
   overflow-wrap: normal;
   word-break: normal;
+}
+.byCSVdocument .byCSVtable thead {
+  position: sticky;
+  top: 0;
+  z-index: 1;
 }
 .byCSVdocument :is(td, th) {
   border-bottom: 0.0625rem solid var(--by-view-border);
@@ -184,7 +195,10 @@
   overflow: auto;
 }
 .byCSVdocument .byVIEWpanel {
+  display: flex;
+  flex-direction: column;
   min-width: 0;
+  min-height: 0;
   margin: 0;
   overflow: hidden;
   border: 0.0625rem solid var(--by-view-border);
@@ -202,6 +216,7 @@
   padding-inline: 0;
 }
 .byCSVdocument .byVIEWpanel > .byVIEWstatus {
+  flex: none;
   margin: 0;
   padding: 0.375rem 0.625rem;
   border-bottom: 0.0625rem solid var(--by-view-border);
@@ -377,6 +392,7 @@
 
 .byCSVdocument .byVIEWactions {
   display: flex;
+  flex: none;
   flex-wrap: wrap;
   align-items: center;
   gap: 0.375rem;
@@ -540,7 +556,19 @@
 }
 
 @media print {
+  .byCSVdocument .byVIEWcontent,
+  .byCSVdocument .byVIEWpanel,
+  .byCSVdocument .byCSVscroll {
+    display: block;
+    overflow: visible;
+    max-height: none;
+  }
+  .byCSVdocument .byCSVtable thead {
+    position: static;
+  }
   .byCSVdocument {
+    height: auto;
+    max-height: none;
     opacity: 1 !important;
   }
   .byCSVdocument,

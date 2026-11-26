@@ -57,6 +57,67 @@ test("CSV library", { timeout: 30000 }, async (t) => {
     assert.equal(await page.evaluate(() => window.injected), undefined);
   });
 
+  await t.test("column headings and filters stay aligned while the table scrolls on both axes", async () => {
+    await page.evaluate(async () => {
+      root.style.width = "20rem";
+      const rows = Array.from({ length: 70 }, (_, i) => ({ name: `Item ${i}`, note: "wide column ".repeat(10) }));
+      await byCSVviewer(root, rows, { columnFilters: true, pagination: false }).ready;
+    });
+    for (const height of ["auto", "16rem"]) {
+      const layout = await page.evaluate((height) => {
+        root.style.height = height;
+        const scroll = root.querySelector(".byCSVscroll");
+        const table = scroll.querySelector("table");
+        scroll.scrollTo(60, 180);
+        const labels = table.tHead.rows[0].getBoundingClientRect();
+        const filters = table.tHead.rows[1].getBoundingClientRect();
+        const viewport = scroll.getBoundingClientRect();
+        return {
+          scrolled: scroll.scrollTop === 180 && scroll.scrollLeft === 60,
+          labelsAtTop: Math.abs(labels.top - viewport.top) <= 1,
+          filtersBelowLabels: Math.abs(filters.top - labels.bottom) <= 1,
+          aligned: table.tHead.rows[0].cells[1].getBoundingClientRect().left === table.tBodies[0].rows[0].cells[1].getBoundingClientRect().left,
+          fitsHost: viewport.bottom <= root.getBoundingClientRect().bottom
+        };
+      }, height);
+      assert.deepEqual(layout, { scrolled: true, labelsAtTop: true, filtersBelowLabels: true, aligned: true, fitsHost: true }, height);
+    }
+    await page.evaluate(() => {
+      root.style.width = "";
+      root.style.height = "";
+    });
+  });
+
+  await t.test("a bounded embed reserves space for host and viewer controls", async () => {
+    const result = await page.evaluate(async () => {
+      const host = document.createElement("section");
+      host.style.cssText = "height: 26rem; width: 22rem; display: flex; flex-direction: column";
+      const title = document.createElement("header");
+      title.textContent = "Report";
+      const viewer = document.createElement("div");
+      host.append(title, viewer);
+      root.after(host);
+      const rows = Array.from({ length: 70 }, (_, i) => ({ name: `Item ${i}`, score: i }));
+      const csv = byCSVviewer(viewer, rows, { columnsButton: true, search: true, columnFilters: true, controlsPosition: "bottom", animations: false });
+      await csv.ready;
+      const scroll = viewer.querySelector(".byCSVscroll");
+      const initial = scroll.clientHeight;
+      const titleHeight = title.clientHeight;
+      title.style.paddingBottom = "3rem";
+      const afterTitle = scroll.clientHeight;
+      const headerFits = afterTitle < initial && Math.abs(initial - afterTitle - (title.clientHeight - titleHeight)) <= 1;
+      viewer.querySelector(".byCSVcolumns").open = true;
+      const controlsFit = scroll.clientHeight < afterTitle && viewer.scrollHeight === viewer.clientHeight && host.scrollHeight === host.clientHeight;
+      scroll.scrollTop = scroll.scrollHeight;
+      const lastRow = scroll.querySelector("tbody tr:last-child").getBoundingClientRect();
+      const lastRowVisible = Math.abs(lastRow.bottom - (scroll.getBoundingClientRect().top + scroll.clientHeight)) <= 1;
+      csv.destroy();
+      host.remove();
+      return { headerFits, controlsFit, lastRowVisible };
+    });
+    assert.deepEqual(result, { headerFits: true, controlsFit: true, lastRowVisible: true });
+  });
+
   await t.test("replacement and disposal respect the current instance", async () => {
     const result = await page.evaluate(async () => {
       const old = byCSVviewer(root, "name\nold");

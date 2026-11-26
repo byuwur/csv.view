@@ -177,6 +177,36 @@ test("CSV playground loads, updates, and copies a starter", { timeout: 30000 }, 
   assert.notEqual(colors.middle, colors.light);
   assert.notEqual(colors.middle, colors.dark);
   assert.equal(colors.restored, colors.light);
+  await page.locator("#source").fill("name,note\n" + Array.from({ length: 75 }, (_, i) => `Item ${i},${"wide column ".repeat(12)}`).join("\n"));
+  await page.locator("#render").click();
+  await preview.getByRole("button", { name: "Next page" }).waitFor();
+  const tableHeight = async () => {
+    const layout = await preview.evaluate((viewer) => {
+      const scroll = viewer.querySelector(".byCSVscroll");
+      const frame = viewer.ownerDocument.documentElement;
+      return {
+        height: scroll.clientHeight,
+        fitsFrame: frame.scrollHeight === frame.clientHeight && frame.scrollWidth === frame.clientWidth,
+        tableScrolls: scroll.scrollHeight > scroll.clientHeight && scroll.scrollWidth > scroll.clientWidth
+      };
+    });
+    assert.ok(layout.fitsFrame, "The frame has no second vertical or horizontal scrollbar");
+    assert.ok(layout.tableScrolls, "The table can scroll in both directions");
+    return layout.height;
+  };
+  const withToolbar = await tableHeight();
+  await page.locator("#toolbar").evaluate((input) => input.click());
+  await preview.locator(".byVIEWtoolbar").waitFor({ state: "detached" });
+  const withoutToolbar = await tableHeight();
+  assert.ok(withoutToolbar > withToolbar);
+  await page.locator("#search").evaluate((input) => input.click());
+  await preview.getByRole("searchbox", { name: "Search all columns" }).waitFor();
+  const withSearch = await tableHeight();
+  assert.ok(withSearch < withoutToolbar);
+  await page.setViewportSize({ width: 1280, height: 1000 });
+  await page.waitForFunction((height) => document.getElementById("preview-frame").contentDocument.querySelector(".byCSVscroll").clientHeight > height, withSearch);
+  await tableHeight();
+
   await page.locator("#source").fill("name,value\nPLAYGROUND_CORE,1");
   await page.locator("#render").click();
   await preview.filter({ hasText: "PLAYGROUND_CORE" }).waitFor();

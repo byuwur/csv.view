@@ -120,7 +120,9 @@ viewer.destroy(); // Call when the host panel is removed.
 
 Style `.byCSVdocument` with `--by-view-bg`, `--by-view-text`, `--by-view-muted`, `--by-view-border`, `--by-view-accent`, and `--by-view-alt`. Set typography on the target or its class.
 
-Wide tables scroll horizontally instead of squeezing columns. Explicit line breaks are preserved; cell copy feedback leaves values in place.
+The viewer fits its container up to the dynamic viewport height. The toolbar, search, row count, and pagination take the space they need. Tall tables scroll in the remaining space, with column headings and filters pinned together. Short tables keep their natural height, and wide tables scroll horizontally. Explicit line breaks are preserved; cell copy feedback leaves values in place.
+
+When a fixed-height panel has its own heading above the viewer, give the panel `display: flex` and `flex-direction: column`. The viewer then fits the space below the heading, including when the heading wraps.
 
 Limits: 10 million text-input characters, 100,000 data rows, and 500 columns. Pagination mounts one page of up to 1,000 rows; `pagination: false` mounts every matching row. Browser parsing/filtering yield. `.parse()` and native sorting are synchronous; large cells or records can still block.
 
