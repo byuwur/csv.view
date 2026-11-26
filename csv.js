@@ -11,7 +11,7 @@
   if (global.byCSVviewer?.initialized) return;
 
   // ===== METADATA =====
-  byCSVviewer.VERSION = "2.5"; // 2026-11-25
+  byCSVviewer.VERSION = "2.6"; // 2026-11-26
   // Mirrored helpers are checked by code.view/.github/scripts/check-family.mjs.
   const componentName = "CSV.view";
   const themeFile = "csv";
